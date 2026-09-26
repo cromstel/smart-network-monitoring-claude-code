@@ -1,0 +1,50 @@
+# MySQL 8 for parity testing (B-13) and a production-like stack.
+#   docker compose up -d mysql              # just the database, for `npm run test:mysql`
+#   docker compose --profile app up -d      # database + the app on http://localhost:3000
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-home_monitor}
+      MYSQL_USER: ${DB_USER:-monitor}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-monitor-dev-pw}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-dev-pw}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root-dev-pw}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    profiles: ["app"]
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DB_CLIENT: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    volumes:
+      - app-data:/app/data
+    # For real ARP discovery on a Linux host, replace `ports` with:
+    #   network_mode: host
+    # and add:
+    #   cap_add: [NET_RAW]
+    # (DB_HOST must then be 127.0.0.1.)
+
+volumes:
+  mysql-data:
+  app-data:
