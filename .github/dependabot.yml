@@ -1,0 +1,32 @@
+# Weekly dependency update PRs. Security alerts work independently of this file.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      # Batch minor/patch bumps into one PR; majors stay individual for review.
+      npm-minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # typescript-eslint (bundled in eslint-config-next) only supports <6.1 today;
+      # drop these ignores once the ecosystem catches up.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]
+      # eslint-plugin-react / -import / -jsx-a11y are incompatible with ESLint 10;
+      # drop this ignore once they support it.
+      - dependency-name: "eslint"
+        versions: [">=10.0.0"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
