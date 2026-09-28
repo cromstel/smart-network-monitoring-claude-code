@@ -109,7 +109,7 @@ function create(): Kysely<DB> {
       dialect: new MysqlDialect({
         pool: createPool({
           host: process.env.DB_HOST,
-          port: Number(process.env.DB_PORT ?? 3306),
+          port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,  // required when DB_CLIENT=mysql
           user: process.env.DB_USER,
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME,
@@ -210,8 +210,12 @@ DB_FILE=./data/dev.db
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=smart_home_monitor
-DB_USER=monitor
-DB_PASSWORD=
+DB_USER=db_username
+DB_PASSWORD=db_password
+# Scratch database for `npm run test:mysql` / `npm run bench`
+DB_TEST_NAME=home_monitor_test
+# docker compose only — generate: openssl rand -hex 32
+MYSQL_ROOT_PASSWORD=
 
 # Security — generate with: openssl rand -hex 32
 SESSION_SECRET=

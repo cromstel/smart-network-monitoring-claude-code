@@ -93,7 +93,7 @@ Another process holds a write lock (e.g. a DB browser with an open transaction, 
 
 ### Tests: `npm run test:mysql` cannot connect
 
-Start MySQL with `docker compose up -d mysql` and pass `DB_HOST=127.0.0.1 DB_USER=monitor DB_PASSWORD=<.env value>`. The suite uses the `home_monitor_test` database created by `docker/mysql-init/01-test-db.sql` — never your real data.
+Start MySQL with `docker compose up -d mysql`. The suite reads `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` and `DB_TEST_NAME` from your `.env` (Jest loads it), so point `DB_HOST` at the compose service (`127.0.0.1` from the host) and set `DB_CLIENT=mysql` in the command. It uses the scratch database named by `DB_TEST_NAME`, created by `docker/mysql-init/01-test-db.sh` on the first boot of the `mysql-data` volume — never your real data.
 
 ### E2E: `Executable doesn't exist`
 

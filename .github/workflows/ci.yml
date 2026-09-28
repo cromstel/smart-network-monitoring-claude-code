@@ -41,6 +41,10 @@ jobs:
         run: npm run test:mysql
         env:
           DB_HOST: 127.0.0.1
+          # getConfig() validates DB_NAME whenever DB_CLIENT=mysql (every request
+          # authenticates via getConfig().SESSION_SECRET), so it must be set even
+          # though the suite connects to DB_TEST_NAME.
+          DB_NAME: home_monitor_test
           DB_PORT: 3306
           DB_USER: monitor
           DB_PASSWORD: monitor-ci-pw

@@ -39,7 +39,11 @@ async function main() {
 
   text = setVar(text, 'SESSION_SECRET', randomBytes(32).toString('hex'), true)
   text = setVar(text, 'ENCRYPTION_KEY', randomBytes(32).toString('hex'), true)
-  if (process.argv.includes('--mysql')) text = setVar(text, 'DB_CLIENT', 'mysql', false)
+  if (process.argv.includes('--mysql')) {
+    text = setVar(text, 'DB_CLIENT', 'mysql', false)
+    // docker-compose.yml requires this; generate it like the other secrets (never overwrite).
+    text = setVar(text, 'MYSQL_ROOT_PASSWORD', randomBytes(32).toString('hex'), true)
+  }
   const subnet = arg('subnet')
   if (subnet) {
     if (!isValidCidr(subnet)) throw new Error(`--subnet ${subnet} is not a valid IPv4 CIDR`)

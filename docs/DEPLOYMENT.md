@@ -30,7 +30,7 @@ Open `http://<this machine>:3000` → you are sent to `/setup` → create the ad
 
 | Flag | Effect |
 |---|---|
-| `--mysql` | sets `DB_CLIENT=mysql`; fill `DB_HOST/DB_NAME/DB_USER/DB_PASSWORD` in `.env`, then `npm run db:migrate` |
+| `--mysql` | sets `DB_CLIENT=mysql` and generates `MYSQL_ROOT_PASSWORD` for docker compose; fill `DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD` in `.env`, then `npm run db:migrate` |
 | `--subnet <cidr>` | the network to scan, e.g. `192.168.0.0/24` |
 | `--scanner simulated\|arp\|asus` | preferred scanner; it still falls back automatically (see below) |
 
@@ -72,11 +72,17 @@ docker compose --profile app up -d --build
 docker compose logs -f app         # watch for "scheduler started" and "scanner selected"
 ```
 
+Every value docker compose needs comes from `.env` — it refuses to start with a
+message naming the missing variable (`DB_NAME`, `DB_USER`, `DB_PASSWORD`,
+`DB_PORT`, `DB_TEST_NAME`, `MYSQL_ROOT_PASSWORD`, `PORT`). `npm run setup
+-- --mysql` generates `MYSQL_ROOT_PASSWORD` for you; the rest ship as
+placeholders in `.env.example` that you replace.
+
 Open `http://<host>:3000/setup`.
 
 Inside a bridged container, ARP only sees the Docker network, so the scanner falls back (logged once, with the reason). Use the router integration (Router page → ASUS) or path C for real discovery.
 
-The `mysql` service also creates `home_monitor_test` for `npm run test:mysql`. Data lives in the `mysql-data` volume.
+The `mysql` service also creates the scratch database named by `DB_TEST_NAME` for `npm run test:mysql`. Data lives in the `mysql-data` volume.
 
 ## C. Docker with host networking (full ARP sweep, Linux only)
 
@@ -92,7 +98,7 @@ All variables are validated at startup (`lib/config.ts`). A missing or malformed
 |---|---|---|
 | `DB_CLIENT` | `sqlite` | `mysql` for production |
 | `DB_FILE` | `./data/dev.db` | SQLite only |
-| `DB_HOST` `DB_PORT` `DB_NAME` `DB_USER` `DB_PASSWORD` | | MySQL only |
+| `DB_HOST` `DB_PORT` `DB_NAME` `DB_USER` `DB_PASSWORD` | — | Required when `DB_CLIENT=mysql`; no fallback, the server refuses to guess |
 | `SESSION_SECRET` | — | ≥ 32 chars. Keys the session-token hash |
 | `ENCRYPTION_KEY` | — | 64 hex chars. AES-256-GCM key for router credentials |
 | `NETWORK_SUBNET` | `192.168.1.0/24` | Initial value; editable later in Settings (admin) |
@@ -102,7 +108,7 @@ All variables are validated at startup (`lib/config.ts`). A missing or malformed
 | `SCHEDULER_ENABLED` | `true` | Set `false` on a second replica so only one process scans |
 | `COOKIE_SECURE` | `true` in production | Set `false` **only** for plain-HTTP access on a trusted LAN |
 | `LOG_LEVEL` | `info` | pino levels; secrets are redacted |
-| `PORT` | `3000` | |
+| `PORT` | `3000` (Next.js) | Validated when set; the server reads the env var directly |
 
 ### HTTPS
 
