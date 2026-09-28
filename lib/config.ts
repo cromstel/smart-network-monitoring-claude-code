@@ -14,10 +14,10 @@ const baseSchema = z.object({
   DB_CLIENT: z.enum(['sqlite', 'mysql']).default('sqlite'),
   DB_FILE: z.string().min(1).default('./data/dev.db'),
   DB_HOST: z.string().default('localhost'),
-  DB_PORT: z.coerce.number().int().min(1).max(65535).default(3306),
-  DB_NAME: z.string().default('smart_home_monitor'),
-  DB_USER: z.string().default('monitor'),
-  DB_PASSWORD: z.string().default(''),
+  DB_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+  DB_NAME: z.string().optional(),
+  DB_USER: z.string().optional(),
+  DB_PASSWORD: z.string().optional(),
   SESSION_SECRET: z.string().min(32, 'must be at least 32 characters. Generate with: openssl rand -hex 32'),
   ENCRYPTION_KEY: hex64,
   NETWORK_SUBNET: z
@@ -26,7 +26,7 @@ const baseSchema = z.object({
     .refine(isValidCidr, 'must be an IPv4 CIDR such as 192.168.1.0/24'),
   SCANNER_MODE: z.enum(['simulated', 'arp', 'asus']).default('simulated'),
   SCAN_INTERVAL_SECONDS: z.coerce.number().int().min(30).max(3600).default(30),
-  PORT: z.coerce.number().int().default(3000),
+  PORT: z.coerce.number().int().min(1).max(65535).optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   AUTO_MIGRATE: booleanString.default(true),
   SCHEDULER_ENABLED: booleanString.default(true),
@@ -36,7 +36,7 @@ const baseSchema = z.object({
 
 const schema = baseSchema.superRefine((env, ctx) => {
   if (env.DB_CLIENT === 'mysql') {
-    for (const key of ['DB_HOST', 'DB_NAME', 'DB_USER'] as const) {
+    for (const key of ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'] as const) {
       if (!env[key]) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message: 'required when DB_CLIENT=mysql' })
     }
   }

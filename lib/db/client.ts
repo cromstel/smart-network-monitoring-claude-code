@@ -36,7 +36,7 @@ export function optionsFromEnv(env: NodeJS.ProcessEnv = process.env): Connection
     client,
     file: env.DB_FILE ?? './data/dev.db',
     host: env.DB_HOST ?? 'localhost',
-    port: Number(env.DB_PORT ?? 3306),
+    port: env.DB_PORT ? Number(env.DB_PORT) : undefined,
     user: env.DB_USER,
     password: env.DB_PASSWORD,
     database: env.DB_NAME,
@@ -45,13 +45,19 @@ export function optionsFromEnv(env: NodeJS.ProcessEnv = process.env): Connection
 
 export function createDb(opts: ConnectionOptions): Kysely<DB> {
   if (opts.client === 'mysql') {
+    const missing: string[] = []
+    if (!opts.user) missing.push('user (DB_USER)')
+    if (opts.password === undefined) missing.push('password (DB_PASSWORD)')
+    if (!opts.database) missing.push('database (DB_NAME or DB_TEST_NAME)')
+    if (!opts.port || !Number.isInteger(opts.port) || opts.port < 1 || opts.port > 65535) missing.push('port (DB_PORT)')
+    if (missing.length) throw new Error(`MySQL connection is missing ${missing.join(', ')}. Set them in .env (see .env.example).`)
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- keep the driver out of the SQLite path
     const { createPool } = require('mysql2') as typeof import('mysql2')
     return new Kysely<DB>({
       dialect: new MysqlDialect({
         pool: createPool({
           host: opts.host,
-          port: opts.port ?? 3306,
+          port: opts.port,
           user: opts.user,
           password: opts.password,
           database: opts.database,

@@ -2,7 +2,7 @@
  * npm run bench [-- mysql]
  * Loads 100 devices × (30 days hourly + 24 hours of 30-second raw samples) into a SCRATCH
  * database and times the queries behind the PRD §5 targets. Results go in docs/PERFORMANCE.md.
- * SQLite runs in memory; MySQL uses DB_TEST_NAME (default home_monitor_test) — never real data.
+ * SQLite runs in memory; MySQL uses DB_TEST_NAME (from .env) — never real data.
  */
 import { randomUUID } from 'node:crypto'
 import { createDb, setDb } from '../lib/db/client'
@@ -29,7 +29,7 @@ async function main() {
   const client = process.argv[2] === 'mysql' ? 'mysql' : 'sqlite'
   const db =
     client === 'mysql'
-      ? createDb({ client, host: process.env.DB_HOST ?? '127.0.0.1', port: Number(process.env.DB_PORT ?? 3306), user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_TEST_NAME ?? 'home_monitor_test' })
+      ? createDb({ client, host: process.env.DB_HOST ?? '127.0.0.1', port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined, user: process.env.DB_USER, password: process.env.DB_PASSWORD, database: process.env.DB_TEST_NAME })
       : createDb({ client, file: ':memory:' })
   setDb(db, client)
   await migrateToLatest(db)

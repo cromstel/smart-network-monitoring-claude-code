@@ -21,10 +21,10 @@ export async function createTestDb(client: DbClient): Promise<Kysely<DB>> {
       ? createDb({
           client: 'mysql',
           host: process.env.DB_HOST ?? '127.0.0.1',
-          port: Number(process.env.DB_PORT ?? 3306),
-          user: process.env.DB_USER ?? 'monitor',
-          password: process.env.DB_PASSWORD ?? '',
-          database: process.env.DB_TEST_NAME ?? 'home_monitor_test',
+          port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
+          user: process.env.DB_USER,
+          password: process.env.DB_PASSWORD,
+          database: process.env.DB_TEST_NAME,
           connectionLimit: 4,
         })
       : createDb({ client: 'sqlite', file: ':memory:' })

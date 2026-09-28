@@ -1,23 +1,27 @@
 # MySQL 8 for parity testing (B-13) and a production-like stack.
+# All connection values (DB_NAME, DB_USER, DB_PASSWORD, DB_PORT, DB_TEST_NAME,
+# MYSQL_ROOT_PASSWORD, PORT) are read from .env — see .env.example.
 #   docker compose up -d mysql              # just the database, for `npm run test:mysql`
-#   docker compose --profile app up -d      # database + the app on http://localhost:3000
+#   docker compose --profile app up -d      # database + the app on http://localhost:$PORT
 services:
   mysql:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-smart_home_monitor}
-      MYSQL_USER: ${DB_USER:-monitor}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-monitor-dev-pw}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-dev-pw}
-    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+      MYSQL_DATABASE: ${DB_NAME:?DB_NAME must be set in .env}
+      MYSQL_USER: ${DB_USER:?DB_USER must be set in .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set in .env}
+      DB_TEST_NAME: ${DB_TEST_NAME:?DB_TEST_NAME must be set in .env}
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--port=${DB_PORT:?DB_PORT must be set in .env}"]
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:${DB_PORT:?DB_PORT must be set in .env}:${DB_PORT:?DB_PORT must be set in .env}"
     volumes:
       - mysql-data:/var/lib/mysql
+      # Creates DB_TEST_NAME on first boot so `npm run test:mysql` never touches real data.
       - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root-dev-pw}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P${DB_PORT:?DB_PORT must be set in .env}", "-uroot", "-p${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set in .env}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -33,10 +37,9 @@ services:
     environment:
       DB_CLIENT: mysql
       DB_HOST: mysql
-      DB_PORT: 3306
       NODE_ENV: production
     ports:
-      - "3000:3000"
+      - "${PORT:?PORT must be set in .env}:${PORT:?PORT must be set in .env}"
     volumes:
       - app-data:/app/data
     # For real ARP discovery on a Linux host, replace `ports` with:
