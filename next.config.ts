@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Native / Node-only modules must not be bundled.
   serverExternalPackages: ['better-sqlite3', 'mysql2', 'pino', 'node-cron', 'bcryptjs', 'oui-data'],
+  // kysely is ESM-only; next/jest uses this list to un-ignore its node_modules
+  // paths so SWC transforms it to CJS for the Jest (require) runtime.
+  transpilePackages: ['kysely'],
   async headers() {
     return [
       {

@@ -2,7 +2,7 @@
 import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Radar, Search, SearchX } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PageHeader } from '@/components/layout/AppShell'
 import { useCan } from '@/components/layout/SessionContext'
 import { useToast } from '@/components/layout/Toasts'
@@ -59,8 +59,6 @@ export function DeviceList() {
   const scan = useScan()
   const toast = useToast()
 
-  useEffect(() => setPage(1), [debounced, status, type, sort])
-
   const filters = {
     search: debounced || undefined,
     status: status || undefined,
@@ -70,6 +68,16 @@ export function DeviceList() {
     page,
     pageSize: PAGE_SIZE,
   }
+
+  // Reset pagination when filters change: adjust state during render (React's
+  // "storing information from previous renders" pattern) instead of an effect.
+  const filterKey = `${debounced}|${status}|${type}|${sort}`
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey)
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey)
+    setPage(1)
+  }
+
   const q = useDevices(filters)
   const total = q.data?.pagination.total ?? 0
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))

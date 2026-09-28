@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 /*
  * "Command Deck" — a network operations console. Ink-dark by default, paper-light as the

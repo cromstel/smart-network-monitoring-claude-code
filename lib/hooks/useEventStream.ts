@@ -16,7 +16,9 @@ export function useEventStream(onAlert?: (payload: { title?: string; priority?: 
   const qc = useQueryClient()
   const [state, setState] = useState<StreamState>('connecting')
   const onAlertRef = useRef(onAlert)
-  onAlertRef.current = onAlert
+  useEffect(() => {
+    onAlertRef.current = onAlert
+  })
 
   useEffect(() => {
     let source: EventSource | null = null

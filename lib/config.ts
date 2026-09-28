@@ -28,8 +28,8 @@ const baseSchema = z.object({
   SCAN_INTERVAL_SECONDS: z.coerce.number().int().min(30).max(3600).default(30),
   PORT: z.coerce.number().int().default(3000),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
-  AUTO_MIGRATE: booleanString.default('true'),
-  SCHEDULER_ENABLED: booleanString.default('true'),
+  AUTO_MIGRATE: booleanString.default(true),
+  SCHEDULER_ENABLED: booleanString.default(true),
   /** Defaults to true in production. Set false only for plain-HTTP access on a trusted LAN. */
   COOKIE_SECURE: booleanString.optional(),
 })
