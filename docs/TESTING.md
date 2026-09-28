@@ -34,7 +34,7 @@ Weighted toward the middle. Unit tests are fast but missed the bug that mattered
   "test": "jest",
   "test:watch": "jest --watch",
   "test:coverage": "jest --coverage",
-  "test:mysql": "DB_CLIENT=mysql jest --testPathPattern=integration",
+    "test:mysql": "DB_CLIENT=mysql jest --testPathPatterns=integration",
   "test:e2e": "playwright test"
 }
 ```
