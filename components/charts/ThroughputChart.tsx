@@ -36,7 +36,7 @@ export function ThroughputChart({ points, range, height = 260 }: { points: Bandw
   return (
     <div style={{ height }} className="w-full" role="img" aria-label={`Throughput over ${range}: download in cyan, upload in amber`}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 8, right: 36, left: -8, bottom: 0 }}>
           <defs>
             <linearGradient id="gDown" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={c.down} stopOpacity={0.45} />

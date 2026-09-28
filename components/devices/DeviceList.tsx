@@ -144,30 +144,30 @@ export function DeviceList() {
           )
         ) : (
           <>
-            {/* Table ≥ md */}
-            <div className="hidden md:block">
+            {/* Table ≥ md — overflow-x-auto so wide viewports scroll instead of clipping */}
+            <div className="hidden overflow-x-auto md:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border bg-surface-2/40 text-left">
                     {['Device', 'IP address', 'MAC', 'Status', 'Now', 'Transferred', 'Last seen'].map((h) => (
-                      <th key={h} scope="col" className="label-caps whitespace-nowrap px-4 py-2.5 font-semibold">{h}</th>
+                      <th key={h} scope="col" className="label-caps whitespace-nowrap px-3 py-2.5 font-semibold">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className={cn('divide-y divide-border/60', q.isPlaceholderData && 'opacity-60')}>
                   {q.data.data.map((d) => (
                     <tr key={d.id} onClick={() => router.push(`/devices/${d.id}`)} className="cursor-pointer transition-colors hover:bg-accent/[0.04]">
-                      <td className="max-w-[320px] px-4 py-2.5">
+                      <td className="max-w-[320px] px-3 py-2.5">
                         <Link href={`/devices/${d.id}`} onClick={(e) => e.stopPropagation()} className="block focus:outline-none">
                           <NameCell d={d} />
                         </Link>
                       </td>
-                      <td className="num px-4 py-2.5 text-xs">{d.ipAddress}</td>
-                      <td className="num px-4 py-2.5 text-xs text-muted">{d.macAddress}</td>
-                      <td className="px-4 py-2.5"><StatusLabel status={d.status} /></td>
-                      <td className="px-4 py-2.5"><Bandwidth d={d} /></td>
-                      <td className="num px-4 py-2.5 text-xs text-muted">{formatBytes(BigInt(d.totalTransferred.downloadBytes) + BigInt(d.totalTransferred.uploadBytes))}</td>
-                      <td className="num px-4 py-2.5 text-xs text-muted">{d.status === 'offline' ? formatRelativeTime(d.lastSeen) : 'now'}</td>
+                      <td className="num px-3 py-2.5 text-xs">{d.ipAddress}</td>
+                      <td className="num px-3 py-2.5 text-xs text-muted">{d.macAddress}</td>
+                      <td className="px-3 py-2.5"><StatusLabel status={d.status} /></td>
+                      <td className="px-3 py-2.5"><Bandwidth d={d} /></td>
+                      <td className="num px-3 py-2.5 text-xs text-muted">{formatBytes(BigInt(d.totalTransferred.downloadBytes) + BigInt(d.totalTransferred.uploadBytes))}</td>
+                      <td className="num px-3 py-2.5 text-xs text-muted">{d.status === 'offline' ? formatRelativeTime(d.lastSeen) : 'now'}</td>
                     </tr>
                   ))}
                 </tbody>

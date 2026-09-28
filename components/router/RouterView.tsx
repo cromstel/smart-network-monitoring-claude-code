@@ -12,7 +12,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { FieldError, FieldHint, Input, Label, Select } from '@/components/ui/input'
 import { ErrorState, SkeletonRows } from '@/components/ui/states'
 import { fieldErrors } from '@/lib/hooks/api'
-import { useRouterConfig, useRouterStatus, useSaveRouterConfig, useTestRouter } from '@/lib/hooks/queries'
+import { useHealth, useRouterConfig, useRouterStatus, useSaveRouterConfig, useTestRouter } from '@/lib/hooks/queries'
 import { ROUTER_TYPES, type RouterConfigDTO } from '@/lib/types'
 import { isValidIpv4 } from '@/lib/utils/network'
 import { formatRelativeTime } from '@/lib/utils/format'
@@ -31,6 +31,8 @@ const TYPE_LABELS: Record<string, string> = { asus: 'ASUS (AsusWRT)', tplink: 'T
 
 function StatusCard() {
   const s = useRouterStatus()
+  const health = useHealth()
+  const scanner = health.data?.scanner.mode
   return (
     <Card>
       <CardHeader title="Status" />
@@ -40,7 +42,14 @@ function StatusCard() {
         ) : s.isError ? (
           <ErrorState compact error={s.error} onRetry={() => void s.refetch()} />
         ) : !s.data.configured ? (
-          <p className="text-muted">No router configured. Discovery uses the scanner chosen by <code className="num text-fg">SCANNER_MODE</code>, falling back to ARP.</p>
+          <p className="text-muted">
+            No router configured.{' '}
+            {scanner === 'arp' ? (
+              'Discovery scans the subnet with ARP.'
+            ) : (
+              <>Discovery uses the <span className="num text-fg">{scanner ?? '…'}</span> scanner, falling back to ARP.</>
+            )}
+          </p>
         ) : (
           <>
             <div className="flex items-center justify-between">
