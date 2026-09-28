@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 export interface ThemeColors {
   down: string
@@ -18,14 +18,28 @@ function read(): ThemeColors {
   return { down: v('--down'), up: v('--up'), accent: v('--accent'), grid: v('--border'), muted: v('--muted'), surface: v('--surface') }
 }
 
+// Cached snapshot: useSyncExternalStore requires getSnapshot to return a stable
+// reference until the observed source (the <html> class attribute) actually changes.
+let snapshot: ThemeColors | null = null
+
+function getSnapshot(): ThemeColors {
+  if (snapshot === null) snapshot = read()
+  return snapshot
+}
+
+function subscribe(onStoreChange: () => void): () => void {
+  const obs = new MutationObserver(() => {
+    snapshot = null
+    onStoreChange()
+  })
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  return () => {
+    obs.disconnect()
+    snapshot = null
+  }
+}
+
 /** SVG attributes cannot resolve CSS variables reliably; resolve them and follow theme changes. */
 export function useThemeColors(): ThemeColors {
-  const [colors, setColors] = useState<ThemeColors>(FALLBACK)
-  useEffect(() => {
-    setColors(read())
-    const obs = new MutationObserver(() => setColors(read()))
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-    return () => obs.disconnect()
-  }, [])
-  return colors
+  return useSyncExternalStore(subscribe, getSnapshot, () => FALLBACK)
 }

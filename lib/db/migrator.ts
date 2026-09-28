@@ -1,4 +1,5 @@
-import { Migrator, type Kysely, type Migration, type MigrationProvider, type MigrationResultSet } from 'kysely'
+import { type Kysely } from 'kysely'
+import { Migrator, NO_MIGRATIONS, type Migration, type MigrationProvider, type MigrationResultSet } from 'kysely/migration'
 import { getDb } from './client'
 import type { DB } from './schema'
 import * as m001 from './migrations/001_devices'
@@ -53,8 +54,6 @@ export async function migrateDown(db: Kysely<DB> = getDb()): Promise<string[]> {
 
 /** Roll back every migration. Tests only. */
 export async function migrateToZero(db: Kysely<DB> = getDb()): Promise<void> {
-  // NO_MIGRATIONS sentinel
-  const { NO_MIGRATIONS } = await import('kysely')
   unwrap(await migrator(db).migrateTo(NO_MIGRATIONS))
 }
 
