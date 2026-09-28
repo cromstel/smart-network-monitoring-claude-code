@@ -2,7 +2,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { useToast } from '@/components/layout/Toasts'
 import { Button } from '@/components/ui/button'
@@ -31,6 +31,8 @@ export function EditDeviceDialog({ device }: { device: DeviceDTO }) {
     resolver: zodResolver(schema),
     values: { deviceName: device.deviceName ?? '', deviceType: device.deviceType, categoryId: device.categoryId ?? '', isIgnored: device.isIgnored },
   })
+
+  const isIgnored = useWatch({ control: form.control, name: 'isIgnored' })
 
   const submit = form.handleSubmit((v) =>
     update.mutate(
@@ -82,7 +84,7 @@ export function EditDeviceDialog({ device }: { device: DeviceDTO }) {
               <p className="text-sm">Hide this device</p>
               <p className="text-xs text-muted">Ignored devices are hidden from lists and never alert.</p>
             </div>
-            <Switch checked={form.watch('isIgnored')} onCheckedChange={(v) => form.setValue('isIgnored', v, { shouldDirty: true })} aria-label="Ignore device" />
+            <Switch checked={isIgnored} onCheckedChange={(v) => form.setValue('isIgnored', v, { shouldDirty: true })} aria-label="Ignore device" />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>

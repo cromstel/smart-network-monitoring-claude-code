@@ -31,7 +31,8 @@ export async function apiFetch<T>(path: string, init: RequestInit & { json?: unk
   if (!res.ok) {
     const err = (body ?? {}) as Partial<ApiErrorBody>
     if (res.status === 401 && typeof window !== 'undefined' && !path.startsWith('/api/auth/login') && !path.startsWith('/api/setup')) {
-      window.location.assign(`/login?next=${encodeURIComponent(window.location.pathname)}`)
+      // Deliberate full reload (absolute URL): wipes client state on session expiry.
+      window.location.assign(window.location.origin + '/login?next=' + encodeURIComponent(window.location.pathname))
     }
     throw new ApiError(res.status, err.error ?? 'INTERNAL', err.message ?? `Request failed (${res.status})`, err.details)
   }
