@@ -134,7 +134,7 @@ Each fallback is logged at `warn` with what failed and what was chosen. Bandwidt
 git pull && npm ci && npm run build && (restart the service)
 ```
 
-Migrations run automatically (`AUTO_MIGRATE=true`). To run them by hand: `npm run db:migrate`. Take a database backup first (`mysqldump home_monitor > backup.sql`, or copy `data/dev.db` with the server stopped).
+Migrations run automatically (`AUTO_MIGRATE=true`). To run them by hand: `npm run db:migrate`. Take a database backup first (`mysqldump smart_home_monitor > backup.sql`, or copy `data/dev.db` with the server stopped).
 
 ## Backups
 

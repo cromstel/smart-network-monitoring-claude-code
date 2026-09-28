@@ -15,7 +15,7 @@ const baseSchema = z.object({
   DB_FILE: z.string().min(1).default('./data/dev.db'),
   DB_HOST: z.string().default('localhost'),
   DB_PORT: z.coerce.number().int().min(1).max(65535).default(3306),
-  DB_NAME: z.string().default('home_monitor'),
+  DB_NAME: z.string().default('smart_home_monitor'),
   DB_USER: z.string().default('monitor'),
   DB_PASSWORD: z.string().default(''),
   SESSION_SECRET: z.string().min(32, 'must be at least 32 characters. Generate with: openssl rand -hex 32'),

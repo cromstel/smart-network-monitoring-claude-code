@@ -209,7 +209,7 @@ DB_FILE=./data/dev.db
 # MySQL — required when DB_CLIENT=mysql
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=home_monitor
+DB_NAME=smart_home_monitor
 DB_USER=monitor
 DB_PASSWORD=
 
