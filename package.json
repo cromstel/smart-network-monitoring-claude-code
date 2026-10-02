@@ -20,9 +20,9 @@
     "db:migrate:down": "tsx scripts/migrate.ts down",
     "db:seed": "tsx scripts/seed.ts",
     "bench": "cross-env LOG_LEVEL=silent tsx scripts/bench.ts",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "cross-env DB_CLIENT=sqlite jest",
+    "test:watch": "cross-env DB_CLIENT=sqlite jest --watch",
+    "test:coverage": "cross-env DB_CLIENT=sqlite jest --coverage",
     "test:mysql": "cross-env DB_CLIENT=mysql jest --testPathPatterns=integration",
     "test:e2e": "playwright test"
   },

@@ -7,6 +7,10 @@ const createJestConfig = nextJest({ dir: './' })
 const config = {
   testEnvironment: 'node',
   clearMocks: true,
+  // Integration suites run against a real MySQL over TCP, and the repo may sit on a
+  // Windows mount (/mnt/c under WSL) where TypeScript transform is slow. The default
+  // 5000 ms made the heavy DDL and retention-pruning tests fail intermittently under load.
+  testTimeout: 30000,
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
