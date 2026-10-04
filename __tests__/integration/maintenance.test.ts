@@ -63,7 +63,10 @@ describe.each(DIALECTS)('maintenance jobs [%s]', (client) => {
     await db.insertInto('connection_logs').values({ id: randomUUID(), device_id: deviceId, event_type: 'connected', timestamp: toDbTime(old), ip_address: null, connection_duration: null, created_at: toDbTime(old) }).execute()
     await db.insertInto('notifications').values({ id: randomUUID(), user_id: user.id, device_id: null, alert_id: null, title: 'old', message: 'old', is_read: 0, data: null, created_at: toDbTime(old) }).execute()
     await db.insertInto('network_scan_history').values({ id: randomUUID(), scanner_name: 'arp', scan_duration: 1, status: 'success', error_message: null, created_at: toDbTime(new Date(now.getTime() - 8 * 86400_000)) }).execute()
-    await sessionTokenFor(user, -1000) // already expired
+    // Expired an hour ago rather than a second: `now` was captured before the inserts above, so
+    // a short TTL loses that race whenever setup takes longer (e.g. MySQL over TCP on a slow
+    // mount), and the prune then matches no rows.
+    await sessionTokenFor(user, -3600_000)
 
     const result = await pruneRetention(now, 10) // batch of 10 exercises the loop
 
